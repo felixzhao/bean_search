@@ -6,6 +6,7 @@ import knn
 
 # get match word in train_words to test_word
 # which size based on topnum
+# "knn", "test_vectors" could be change in bean_search
 def getmatchs(match_word_test, matchwords_train, knn, trainvectors, testvectors, topnum):
   heap = []
   matchs = []
@@ -16,7 +17,22 @@ def getmatchs(match_word_test, matchwords_train, knn, trainvectors, testvectors,
   for item in nsmallest(topnum, heap):
     matchs.append(item[1])
   return matchs
+
+# get match word list
+# simplified parameters
+def getmatchs(match_word_test, trainvectors, testvectors, topnum):
+  matchs = []
   
+  trainwords = set(trainvectors.keys())
+  testwords = set(testvectors.keys())
+  knownwords = trainwords & testwords
+  matchwords_train = list(trainwords - knownwords)
+  
+  knn_topnum = 50 
+  knn_res = knn.getknn(match_word_test, knownwords, testvectors, topnum)
+  matchs = getmatchs(match_word_test, matchwords_train, knn_res,trainvectors, testvectors, topnum)
+  return matchs
+
 if __name__ == '__main__':
   
   # load files
@@ -57,11 +73,11 @@ if __name__ == '__main__':
   # get knn
   knn_res = []
   match_word_test = matchwords_test[0]
-  topnum = 50 # this is the size of math words
+  topnum = 50 
   knn_res = knn.getknn(match_word_test, knownwords, testvectors, topnum)
   
   # get match list
-  topnum = 10
+  topnum = 10 # this is the size of math words
   match_list = getmatchs(match_word_test, matchwords_train, knn_res,trainvectors, testvectors, topnum)
   
   #pirnt knn
