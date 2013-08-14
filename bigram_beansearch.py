@@ -1,6 +1,7 @@
 import matchswithscore
 import updatevec
 import gzip
+import sys
 
 def combinationscore(score_list):
   score = 0
@@ -11,7 +12,7 @@ def bigram(word_1, word_2, trainvectors, testvectors):
   fixed_word = ''
   topnum = 10
   word_1_match_list = matchswithscore.getmatchswithscore(word_1, trainvectors, testvectors, topnum)
-  max_combination_score = 0
+  max_combination_score = sys.float_info.max
   for word_1_match_tuple in word_1_match_list:
     match_word = word_1_match_tuple[1]
     word_1_match_word_score = word_1_match_tuple[0]
@@ -20,7 +21,7 @@ def bigram(word_1, word_2, trainvectors, testvectors):
     for word_2_match_tuple in word_2_match_list:
       word_2_match_word_score = word_2_match_tuple[0]
       combination_score = combinationscore([word_1_match_word_score, word_2_match_word_score])
-      if combination_score > max_combination_score :
+      if combination_score < max_combination_score :
         max_combination_score = combination_score
         fixed_word = word_1_match_tuple[1]
   return fixed_word
