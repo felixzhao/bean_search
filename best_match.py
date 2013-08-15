@@ -12,10 +12,10 @@ from heapq import *
 trainfile = gzip.open(sys.argv[1], "rb")
 testfile = gzip.open(sys.argv[2], "rb")
 
-fout_matrix = open('res3/matrix.pkl', 'w')
-fout_test = open('res3/test_match.words.txt','w')
-fout_train = open('res3/train_match.words.txt','w')
-fout = open('res3/out.txt', 'w')
+fout_matrix = open('C:/Users/zhaoqua/Documents/GitHub/bean_search/res/matrix.pkl', 'w')
+fout_test = open('C:/Users/zhaoqua/Documents/GitHub/bean_search/res/test_match.words.txt','w')
+fout_train = open('C:/Users/zhaoqua/Documents/GitHub/bean_search/res/train_match.words.txt','w')
+fout = open('C:/Users/zhaoqua/Documents/GitHub/bean_search/res/out.txt', 'w')
 
 trainwords = set()
 testwords = set()
@@ -89,15 +89,17 @@ for word in matchwords_test:
 
     row = []
     results = []
-    pool = Pool(processes = 8)
+    #pool = Pool(processes = 8)
     for w in matchwords_train:
         print >>sys.stderr, 'Generating match scores for:', w, 'and', word
-        results.append(pool.apply_async(calcMatchScore, (word, w, knn)))
+        results.append(calcMatchScore(word, w, knn))
+        #results.append(pool.apply_async(calcMatchScore, (word, w, knn)))
         #row.append(calcMatchScore(word, w, knn))
-    pool.close()
-    pool.join()
+    #pool.close()
+    #pool.join()
     for res in results:
-        row.append(res.get())
+        #row.append(res.get())
+        row.append(res)
     matrix.append(row)
 
 print >>sys.stderr, 'Dumping Matrix'

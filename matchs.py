@@ -18,21 +18,6 @@ def getmatchs(match_word_test, matchwords_train, knn, trainvectors, testvectors,
     matchs.append(item[1])
   return matchs
 
-# get match word list
-# simplified parameters
-def getmatchs(match_word_test, trainvectors, testvectors, topnum):
-  matchs = []
-  
-  trainwords = set(trainvectors.keys())
-  testwords = set(testvectors.keys())
-  knownwords = trainwords & testwords
-  matchwords_train = list(trainwords - knownwords)
-  
-  knn_topnum = 50 
-  knn_res = knn.getknn(match_word_test, knownwords, testvectors, topnum)
-  matchs = getmatchs(match_word_test, matchwords_train, knn_res,trainvectors, testvectors, topnum)
-  return matchs
-
 if __name__ == '__main__':
   
   # load files
