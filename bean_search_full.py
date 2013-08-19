@@ -17,18 +17,6 @@ def calcMatchScore(w1, w2, knn, trainvectors, testvectors):
         i+=1
         res += (d1-d2)**2 / i
     return res
-
-# calculate clostest known_words in test_vectors which count is topnum
-# The test_vectors could be change in bean search
-def getknn(match_word_test, knownwords, testvectors, topnum):
-  heap = []
-  knn = []
-  for known_word in knownwords:
-    dist = calcdist(testvectors[match_word_test],testvectors[known_word])
-    heappush(heap, (dist,known_word))
-  for item in nsmallest(topnum, heap):
-    knn.append(item[1])
-  return knn
     
 # get match word & match_score in train_words to test_word
 # which size based on topnum
@@ -41,23 +29,30 @@ def getmatchswithscore(match_word_test, trainvectors, testvectors, topnum):
   knownwords = trainwords & testwords
   matchwords_train = list(trainwords - knownwords)
   
-  knn_topnum = 50 
-  knn_res = getknn(match_word_test, knownwords, testvectors, topnum)
-  matchs = getmatchs(match_word_test, matchwords_train, knn_res,trainvectors, testvectors, topnum)
-  return matchs
+# Get knn
+# calculate clostest known_words in test_vectors which count is topnum
+# The test_vectors could be change in bean search
+  heap = []
+  knn = []
+  for known_word in knownwords:
+    dist = calcdist(testvectors[match_word_test],testvectors[known_word])
+    heappush(heap, (dist,known_word))
+  for item in nsmallest(topnum, heap):
+    knn.append(item[1])
+# End of Get knn  
 
+# Get match words 
 # get match word & match_score in train_words to test_word
 # which size based on topnum
-# "knn", "test_vectors" could be change in bean_search
-def getmatchs(match_word_test, matchwords_train, knn, trainvectors, testvectors, topnum):
+# "knn", "test_vectors" could be change in bean_search 
   heap = []
-  matchs = []
   for match_word_train in matchwords_train:
     print >>sys.stderr, 'Generating match scores for: ', match_word_train, ' and ', match_word_test
     match_score = calcMatchScore(match_word_test, match_word_train, knn, trainvectors, testvectors)
     heappush(heap, (match_score,match_word_train))
   for item in nsmallest(topnum, heap):
     matchs.append(item)
+# end for Get match words
   return matchs
 
 def updatevector(match_word_test, match_word_train, train_vecotrs, test_vectors):
@@ -77,7 +72,6 @@ def nwindow(word_list, trainvectors, testvectors):
   for match_word in match_list:
     con_score = match_word[0]
     candidate_word_list = []
-#    candidate_word_list.append(match_word[1])
     candidate_word_list.append(match_word[1])
     if len(word_list) > 1:
       updated_vec = updatevector(word, match_word[1], trainvectors, testvectors)
@@ -93,12 +87,6 @@ def nwindow(word_list, trainvectors, testvectors):
 #  print(' ========================= ')
   return result
 
-def getngrams(word_list,n):
-  ngrams = []
-  for i in range(len(word_list)):
-      ngrams.append(word_list[i:n+i])
-  return ngrams
-
 def bean_search(trainvectors, testvectors, window_size):
   result = []
   ## define
@@ -110,9 +98,13 @@ def bean_search(trainvectors, testvectors, window_size):
   for w in testwords:
     if w.startswith('<unk>'):
         matchwords_test.append(w)
-  
-  ngram_list = getngrams(matchwords_test, window_size)
 
+# get ngram list
+  ngram_list = []
+  for i in range(len(word_list)):
+      ngram_list.append(word_list[i:window_size+i])
+# end of get ngram list
+  
   updated_vec = testvectors.copy()
   for ngram in ngram_list:
     match_item = nwindow(ngram, trainvectors, updated_vec)
@@ -129,7 +121,7 @@ if __name__ == '__main__':
   testvectors = {'<unk>1':[2,1], '<unk>2':[1,3], '<unk>3':[3,2], 'k':[2,4]}
   word_list = ['<unk>1', '<unk>2', '<unk>3']
   ## expected 
-  expected = [('<unk>1','b'), ('<unk>2','a'), ('<unk>3','c')]
+  expected = [('<unk>1','c'), ('<unk>2','a'), ('<unk>3','b')]
   ## get result
   actual = bean_search(trainvectors, testvectors,2)
   ## pirnt out result
