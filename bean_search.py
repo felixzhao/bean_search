@@ -13,7 +13,7 @@ def bean_search(trainvectors, testvectors):
   for w in testwords:
     if w.startswith('<unk>'):
         matchwords_test.append(w)
-  window_size = 3
+  window_size = 2
   
   ngram_list = ngrams.getngrams(matchwords_test, window_size)
 
